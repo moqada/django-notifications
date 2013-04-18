@@ -1,6 +1,5 @@
 import datetime
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models
@@ -16,6 +15,9 @@ try:
     now = timezone.now
 except ImportError:
     now = datetime.datetime.now
+
+user_model_name = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+
 
 class NotificationQuerySet(models.query.QuerySet):
     
@@ -84,7 +86,7 @@ class Notification(models.Model):
     LEVELS = Choices('success', 'info', 'warning', 'error')
     level = models.CharField(choices=LEVELS, default='info', max_length=20)
     
-    recipient = models.ForeignKey(User, blank=False, related_name='notifications')
+    recipient = models.ForeignKey(user_model_name, blank=False, related_name='notifications')
     unread = models.BooleanField(default=True, blank=False)
 
     actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor')
